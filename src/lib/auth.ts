@@ -41,7 +41,9 @@ export const auth = betterAuth({
     sendVerificationEmail: async ({ user, url }) => {
       await sendUserVerificationEmail(user.email, url);
     },
-    sendOnSignUp: true,
+    // All accounts are pre-verified by the databaseHook (invite proves ownership);
+    // sending a verification email on sign-up would be redundant and confusing.
+    sendOnSignUp: false,
   },
   databaseHooks: {
     user: {
