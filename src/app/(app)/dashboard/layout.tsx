@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 
+// SSR — auth gate for the entire dashboard; the session is checked per request.
+export const dynamic = "force-dynamic"
+
 export default async function DashboardLayout({
   children,
 }: {

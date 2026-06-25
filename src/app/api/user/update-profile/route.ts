@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/db/prisma";
+import { prisma } from "@/lib/prisma";
 import * as z from "zod";
 import { headers } from "next/headers";
 

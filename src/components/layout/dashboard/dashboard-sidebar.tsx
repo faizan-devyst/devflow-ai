@@ -7,6 +7,7 @@ import { markSigningOut } from "@/components/providers/auth-provider"
 import {
   PiNotebook,
   PiUserPlus,
+  PiUsersThree,
   PiGear,
   PiSignOut
 } from "react-icons/pi"
@@ -25,6 +26,10 @@ import {
 } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
+import { TeamSelect } from "@/components/shared/team-select"
+import { ThemeToggle } from "@/components/layout/theme/theme-toggle"
+import { useAppSelector } from "@/store/hooks"
+import { AppRole, Role } from "@/types"
 
 function UserAvatar({ initials }: { initials: string }) {
   return (
@@ -34,7 +39,7 @@ function UserAvatar({ initials }: { initials: string }) {
   );
 }
 
-const topNavItems = [
+const baseNavItems = [
   {
     title: "Standups",
     url: "/dashboard/standup",
@@ -46,6 +51,12 @@ const topNavItems = [
     icon: PiUserPlus,
   },
 ]
+
+const teamNavItem = {
+  title: "Team",
+  url: "/dashboard/team",
+  icon: PiUsersThree,
+}
 
 const bottomNavItems = [
   {
@@ -60,6 +71,13 @@ export function DashboardSidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const user = session?.user
+
+  // The Team page is for people-management — visible to the Owner and Team Leads only.
+  const { teams, currentTeamId } = useAppSelector((state) => state.teams)
+  const currentTeam = teams.find((team) => team.id === currentTeamId) ?? null
+  const canManageTeam =
+    session?.user?.appRole === AppRole.OWNER || currentTeam?.role === Role.TEAM_LEAD
+  const topNavItems = canManageTeam ? [...baseNavItems, teamNavItem] : baseNavItems
 
   const initials = user?.name
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
@@ -84,6 +102,10 @@ export function DashboardSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
+        <div className="px-2 pt-2 group-data-[collapsible=icon]:hidden">
+          <TeamSelect />
+        </div>
+
         <SidebarGroup>
           <SidebarGroupLabel>Main</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -158,6 +180,7 @@ export function DashboardSidebar() {
               </>
             )}
           </div>
+          <ThemeToggle className="shrink-0" />
         </div>
       </SidebarFooter>
     </Sidebar>

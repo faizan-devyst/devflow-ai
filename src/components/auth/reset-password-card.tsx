@@ -46,7 +46,7 @@ function ResetPasswordForm() {
     watch,
     formState: { errors },
   } = useForm<ResetPasswordValues>({
-    resolver: zodResolver(resetPasswordSchema as any),
+    resolver: zodResolver(resetPasswordSchema),
   });
 
   const password = watch("password", "");
@@ -78,7 +78,7 @@ function ResetPasswordForm() {
           });
         }
       });
-    } catch (err) {
+    } catch {
       toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);

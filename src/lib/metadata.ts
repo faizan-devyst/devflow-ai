@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const siteConfig = {
   name: "DevFlow AI",
   description:
-    "Open source AI productivity platform for dev teams. Async standups, sprint digests, and codebase onboarding, powered by Claude.",
+    "The AI workspace for engineering teams: written async standups with AI summaries and weekly digests, plus a codebase onboarding agent that turns any GitHub repo into semantic search, grounded Q&A, and an automatically generated onboarding guide. Open source, bring your own keys.",
   url: process.env.NEXT_PUBLIC_APP_URL!,
   ogImage: "/api/og",
 };
@@ -23,6 +23,10 @@ export function constructMetadata({
     title: `DevFlow AI | ${title}`,
     description: description || siteConfig.description,
     metadataBase: new URL(siteConfig.url),
+    applicationName: "DevFlow AI",
+    authors: [{ name: "Devyst", url: "https://devyst.com" }],
+    creator: "Devyst",
+    publisher: "Devyst",
     openGraph: {
       title: `DevFlow AI | ${title}`,
       description: description || siteConfig.description,

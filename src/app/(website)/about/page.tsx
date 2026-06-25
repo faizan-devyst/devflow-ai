@@ -5,6 +5,9 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
 
+// SSR — auth-gated: redirects to /dashboard when a session exists (reads request headers).
+export const dynamic = "force-dynamic";
+
 export const metadata = constructMetadata({
   title: "About",
   description: "Built for developers, by developers. Open source and free forever.",

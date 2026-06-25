@@ -1,5 +1,4 @@
 import { ImageResponse } from "@vercel/og";
-import { NextRequest } from "next/server";
 
 export const runtime = "edge";
 
@@ -20,7 +19,7 @@ export async function GET() {
         <div
           style={{
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "center",
             alignItems: "center",
             width: "100%",
           }}
@@ -45,37 +44,6 @@ export async function GET() {
               }}
             >
               AI
-            </span>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              backgroundColor: "#1f1f1f",
-              border: "1.5px solid #0ac5b3",
-              borderRadius: "9999px",
-              padding: "8px 24px",
-              gap: "8px",
-            }}
-          >
-            <div
-              style={{
-                width: "10px",
-                height: "10px",
-                backgroundColor: "#0ac5b3",
-                borderRadius: "50%",
-                boxShadow: "0 0 8px #0ac5b3",
-              }}
-            />
-            <span
-              style={{
-                color: "#ededed",
-                fontSize: 18,
-                fontWeight: 600,
-                letterSpacing: "-0.3px",
-              }}
-            >
-              Open Source
             </span>
           </div>
         </div>
@@ -120,7 +88,7 @@ export async function GET() {
           <div
             style={{
               width: "100%",
-              height: "3px",
+              height: "2px",
               background: "linear-gradient(to right, transparent 0%, #0ac5b3 35%, #0ac5b3 65%, transparent 100%)",
               marginTop: "38px",
               marginBottom: "38px",
@@ -131,7 +99,7 @@ export async function GET() {
           <div
             style={{
               color: "#0ac5b3",
-              fontSize: 28,
+              fontSize: 30,
               fontWeight: 500,
               letterSpacing: "-0.5px",
               maxWidth: "680px",

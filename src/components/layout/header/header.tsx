@@ -9,6 +9,7 @@ import { markSigningOut } from "@/components/providers/auth-provider";
 import { PiList, PiBell } from "react-icons/pi";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import {
   Sheet,
   SheetContent,
@@ -42,7 +43,7 @@ const LANDING_LINKS: NavLink[] = [
 
 function Logo({ href }: { href: string }) {
   return (
-    <Link href={'/'} className="flex items-center gap-0.5 shrink-0">
+    <Link href={href} className="flex items-center gap-0.5 shrink-0">
       <span className="text-canvas-text-contrast font-semibold text-lg tracking-tight">
         DevFlow
       </span>
@@ -118,11 +119,9 @@ function LoggedOutDesktopNav() {
       </nav>
 
       <div className="hidden md:flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link href="/sign-in">Sign in</Link>
-        </Button>
+        <ThemeToggle />
         <Button size="sm" asChild>
-          <Link href="/sign-up">Get Started</Link>
+          <Link href="/sign-in">Sign in</Link>
         </Button>
       </div>
     </>
@@ -142,6 +141,8 @@ function LoggedInDesktopNav({
     <>
       {/* Right: bell + avatar */}
       <div className="hidden md:flex items-center gap-3 ml-auto">
+        <ThemeToggle />
+
         {/* Notification bell */}
         <button
           aria-label="Notifications"
@@ -160,7 +161,7 @@ function LoggedInDesktopNav({
           <DropdownMenuContent
             align="end"
             sideOffset={8}
-            className="w-44 bg-canvas-base border border-canvas-border/50 shadow-md rounded-lg py-1"
+            className="w-44 bg-canvas-base border border-canvas-border/50 rounded-lg py-1"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
@@ -237,6 +238,11 @@ function MobileMenu({
           </nav>
 
           <div className="mt-6 flex flex-col gap-2 border-t border-canvas-border/50 pt-6">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-canvas-text">Theme</span>
+              <ThemeToggle />
+            </div>
+
             {isLoggedIn ? (
               <Button
                 variant="ghost"
@@ -251,17 +257,9 @@ function MobileMenu({
               </Button>
             ) : (
               <>
-                <Button variant="ghost" size="sm" asChild>
+                <Button size="sm" asChild>
                   <Link href="/sign-in" onClick={() => setOpen(false)}>
                     Sign in
-                  </Link>
-                </Button>
-                <Button
-                  size="sm"
-                  asChild
-                >
-                  <Link href="/sign-up" onClick={() => setOpen(false)}>
-                    Get Started
                   </Link>
                 </Button>
               </>

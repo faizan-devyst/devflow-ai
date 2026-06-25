@@ -5,6 +5,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
+// SSR — auth-gated: redirects to /dashboard when a session exists (reads request headers).
+export const dynamic = "force-dynamic";
+
 export const metadata = constructMetadata({
   title: "Privacy Policy",
   description: "Privacy policy for DevFlow AI. Your data stays in your own database.",
@@ -50,7 +53,7 @@ export default async function PrivacyPage() {
             </div>
             <p className="text-canvas-text leading-relaxed">
               DevFlow AI collects only what is necessary to operate: account information
-              (name, email) via Clerk authentication, standup entries and sprint data you
+              (name, email) via Better Auth, standup entries and sprint data you
               create, GitHub repository data you explicitly connect for codebase analysis,
               and usage preferences and settings.
             </p>
@@ -67,8 +70,8 @@ export default async function PrivacyPage() {
             </div>
             <p className="text-canvas-text leading-relaxed">
               We do not sell your data. We do not run analytics or ad tracking. We do not
-              store your API keys — they live in your environment variables only. We do not
-              have access to your self-hosted database.
+              store your API keys. They live in your environment variables only. We do not
+              have access to the database you host yourself.
             </p>
           </section>
 
@@ -78,7 +81,7 @@ export default async function PrivacyPage() {
                 3
               </span>
               <h2 className="text-canvas-text-contrast font-semibold text-lg">
-                Third-Party Services
+                Third Party Services
               </h2>
             </div>
             <p className="text-canvas-text leading-relaxed mb-4">
@@ -87,14 +90,14 @@ export default async function PrivacyPage() {
             </p>
             <ul className="space-y-2 list-disc list-inside text-canvas-text leading-relaxed">
               <li>
-                Clerk (authentication) &rarr;{" "}
+                Google OAuth (sign in) &rarr;{" "}
                 <a
-                  href="https://clerk.com/privacy"
+                  href="https://policies.google.com/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-primary-text hover:text-primary-solid underline-offset-2 hover:underline"
                 >
-                  clerk.com/privacy
+                  policies.google.com/privacy
                 </a>
               </li>
               <li>
@@ -181,8 +184,8 @@ export default async function PrivacyPage() {
               </h2>
             </div>
             <p className="text-canvas-text leading-relaxed">
-              Authentication is handled entirely by Clerk. DevFlow AI stores only your
-              Clerk user ID as a reference. We do not store passwords.
+              Authentication is handled by Better Auth. Credentials are stored in your own
+              database with passwords securely hashed, and Google sign-in is available via OAuth.
             </p>
           </section>
 
@@ -236,7 +239,7 @@ export default async function PrivacyPage() {
           <p className="text-canvas-text-contrast font-medium">Have questions?</p>
           <p className="text-canvas-text text-sm mt-1 mb-4">Open an issue on GitHub</p>
           <a
-            href="https://github.com/faizan-devstack/devflow-ai"
+            href="https://github.com/faizan-devyst/devflow-ai"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover px-4 py-2 rounded-md font-medium text-sm inline-flex items-center gap-2 transition-colors"
