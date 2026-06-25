@@ -24,8 +24,13 @@ Open source, bring your own API keys, and your data stays in your own database.
 - Grounded Q&A chat whose answers cite the exact files and line ranges.
 - An automatically generated onboarding guide (overview, architecture, key modules, where to start).
 
+**Roles & access**
+- Three roles: a single **Owner** (seeded manually), **Team Leads**, and **Members**.
+- **Invite-only.** There is no public sign-up. The Owner creates teams and invites Team Leads and Members; Team Leads can invite Members into their own teams. Each invitee gets an email link to set their password and join.
+- The Owner manages every team; Team Leads manage people within the teams they lead, all from a dedicated Team page.
+
 **Foundation**
-- Secure auth with Better Auth (email and password plus Google sign in).
+- Secure auth with Better Auth (email and password), gated behind invitations.
 - Team workspaces. Standups and repositories are scoped per team.
 - Bring your own keys. The app calls Anthropic, OpenAI, and Resend with the keys you provide.
 
@@ -80,15 +85,17 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 BETTER_AUTH_SECRET="a long random string"
 BETTER_AUTH_URL="http://localhost:3000"
 
-# Google OAuth (optional, enables Google sign in)
-GOOGLE_CLIENT_ID="your-google-client-id"
-GOOGLE_CLIENT_SECRET="your-google-client-secret"
+# Owner account (seeded manually — see step 4). This email is the only one
+# allowed to sign up without an invitation.
+OWNER_EMAIL="owner@yourcompany.com"
+OWNER_PASSWORD="a strong password, at least 8 characters"
+OWNER_NAME="Owner"
 
 # AI providers
 ANTHROPIC_API_KEY="sk-ant-..."
 OPENAI_API_KEY="sk-..."
 
-# Email (transactional email for verification, reset, and digests)
+# Email (transactional email for invitations, reset, and digests)
 RESEND_API_KEY="re_..."
 ```
 
@@ -107,7 +114,17 @@ For local schema changes during development, use:
 pnpm prisma migrate dev --name your_change
 ```
 
-### 4. Run the app
+### 4. Seed the Owner
+
+There is no public sign-up — the first account is the Owner, created from the `OWNER_*` variables you set above:
+
+```bash
+pnpm db:seed
+```
+
+This creates (or updates) the Owner with email/password credentials and a pre-verified email, so you can sign in immediately. It is safe to re-run; it resets the Owner's password to the current `OWNER_PASSWORD`. Everyone else joins by invitation from inside the app.
+
+### 5. Run the app
 
 ```bash
 pnpm dev
@@ -125,7 +142,7 @@ Open http://localhost:3000.
 | `DIRECT_URL` | Direct connection for migrations | The direct (non pooled) connection string from your database provider |
 | `BETTER_AUTH_SECRET` | Signing sessions | Generate one with `openssl rand -base64 32` |
 | `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` | App base URL | `http://localhost:3000` locally, your deployed URL in production |
-| `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` | Google sign in (optional) | Create OAuth credentials in the Google Cloud Console, with the callback `<APP_URL>/api/auth/callback/google` |
+| `OWNER_EMAIL`, `OWNER_PASSWORD`, `OWNER_NAME` | The single Owner account seeded by `pnpm db:seed`; `OWNER_EMAIL` is also the only email allowed to sign up without an invite | Values you choose |
 | `ANTHROPIC_API_KEY` | Summaries, digests, codebase answers, onboarding docs | https://console.anthropic.com |
 | `OPENAI_API_KEY` | Code embeddings for indexing and search | https://platform.openai.com |
 | `RESEND_API_KEY` | Verification, password reset, and digest emails | https://resend.com |
@@ -137,10 +154,11 @@ The AI features fail with a clear message if `ANTHROPIC_API_KEY` or `OPENAI_API_
 
 ## Using the app
 
-1. **Create an account** at `/sign-up` and verify your email (or sign in with Google).
-2. **Create a team** from the workspace switcher in the dashboard sidebar. You become the owner.
-3. **Standups:** open Standups, post your update, and use AI Insights to generate a daily summary or to generate and email a weekly digest.
-4. **Onboarding:** open Onboarding, connect a GitHub repository, and watch the indexing progress. Once it is ready you can:
+1. **Sign in as the Owner** at `/sign-in` using the credentials you seeded in step 4.
+2. **Create a team** from the workspace switcher in the dashboard sidebar (Owner only).
+3. **Invite your team** from the **Team** page. The Owner can invite Team Leads and Members into any team; Team Leads can invite Members into the teams they lead. Each invitee receives an email link to set their password and join — manage pending invites (resend or revoke) and member roles from the same page.
+4. **Standups:** open Standups, post your update, and use AI Insights to generate a daily summary or to generate and email a weekly digest.
+5. **Onboarding:** open Onboarding, connect a GitHub repository, and watch the indexing progress. Once it is ready you can:
    - **Search code** with a plain English query.
    - **Ask** questions in a chat that cites the files and lines it used.
    - **Generate an onboarding doc** for the repository.
@@ -153,7 +171,8 @@ The AI features fail with a clear message if `ANTHROPIC_API_KEY` or `OPENAI_API_
 2. In Vercel, click New Project and import your fork.
 3. Add all environment variables from the table above. Set `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` to your production URL.
 4. Make sure your database is reachable from Vercel and that migrations have been applied (`pnpm prisma migrate deploy`).
-5. Deploy. The build runs `prisma generate && next build`.
+5. Seed the Owner once against your production database (`pnpm db:seed` with the production `OWNER_*` and `DEVFLOW_AI_DATABASE_URL` set).
+6. Deploy. The build runs `prisma generate && next build`.
 
 Repository indexing runs as background work after the connect request returns, which is supported on Vercel. On other platforms make sure background tasks are allowed to finish.
 
@@ -177,11 +196,12 @@ Provide the same environment variables and a reachable Postgres database with pg
 ```text
 src/
   app/                 Routes and API route handlers
-    api/               teams, standups, repositories (search, chat, onboarding), github
+    api/               teams, members, invitations, standups, repositories (search, chat, onboarding), github
   components/          Feature components, shared primitives, and ui (shadcn)
-  lib/                 prisma, auth, ai, embeddings, github, ingest, search, rate-limit
+  lib/                 prisma, auth, auth-utils, teams, ai, embeddings, github, ingest, search, rate-limit
   store/               Redux Toolkit store and slices
-prisma/                schema.prisma and migrations
+middleware.ts          Auth gate for /dashboard/* routes
+prisma/                schema.prisma, migrations, and seed.ts (Owner seeding)
 ```
 
 ---
