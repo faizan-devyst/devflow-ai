@@ -8,9 +8,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
+// SSR — auth-gated: redirects to /dashboard when a session exists (reads request headers).
+export const dynamic = "force-dynamic";
+
 export const metadata = constructMetadata({
   title: "Home",
-  description: "Open source AI productivity platform. Async standups with sprint digests and codebase onboarding powered by Claude. Free forever, bring your own API keys.",
+  description: "Written async standups with AI summaries and weekly digests, plus a codebase onboarding agent that indexes any GitHub repo for semantic search, grounded Q&A, and automatically generated onboarding guides. Open source, bring your own API keys.",
 });
 
 export default async function Home() {

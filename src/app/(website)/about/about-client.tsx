@@ -17,13 +17,13 @@ export default function AboutClient() {
   };
 
   const stackItems = [
-    "Next.js 15",
+    "Next.js 16",
     "TypeScript",
     "Tailwind CSS",
     "Prisma ORM",
     "NeonDB",
     "pgvector",
-    "Clerk",
+    "Better Auth",
     "Claude API",
     "OpenAI Embeddings",
     "Vercel",
@@ -49,10 +49,11 @@ export default function AboutClient() {
           </h1>
 
           <p className="max-w-2xl mx-auto text-canvas-text text-lg leading-relaxed mt-6">
-            DevFlow AI started as a personal tool to solve two problems every small dev team
-            faces daily: wasted time on standups, and the pain of onboarding to an unfamiliar
-            codebase. Instead of keeping it private, we open sourced it because the dev
-            community builds better tools together than any single team ever could.
+            DevFlow AI began as an answer to two problems every engineering team knows well:
+            status meetings that interrupt deep work, and the slow, painful ramp-up of joining
+            an unfamiliar codebase. It pairs written async standups with an AI agent that turns
+            any repository into something you can search and ask questions about. It is open
+            source, so you can run it on your own stack and keep your data your own.
           </p>
         </motion.div>
       </section>
@@ -76,8 +77,9 @@ export default function AboutClient() {
                 StandupAI
               </h3>
               <p className="text-canvas-text text-sm leading-relaxed mt-2">
-                Async daily standups with AI-generated summaries and weekly sprint digests
-                delivered to your team and clients automatically. No more wasted meetings.
+                Written async standups, scoped to each team. Claude generates a clear daily
+                summary that surfaces blockers, and a weekly sprint digest goes out to the
+                whole team with one click. No recurring meeting required.
               </p>
             </motion.div>
 
@@ -93,8 +95,9 @@ export default function AboutClient() {
                 Codebase Onboarding Agent
               </h3>
               <p className="text-canvas-text text-sm leading-relaxed mt-2">
-                Connect any GitHub repo and get an interactive onboarding document and Q&A
-                chat grounded in your actual source code. Ramp up in minutes, not days.
+                Connect a GitHub repo and DevFlow indexes the code into a private vector
+                index. From there you get semantic search, a Q&A chat whose answers cite the
+                exact files and lines, and an automatically generated onboarding guide.
               </p>
             </motion.div>
           </div>
@@ -111,7 +114,7 @@ export default function AboutClient() {
             <div className="text-center p-6">
               <PiX className="text-alert-text mx-auto mb-3" size={20} />
               <p className="text-canvas-text text-sm">
-                A VC-backed SaaS trying to lock you in
+                A VC backed SaaS trying to lock you in
               </p>
             </div>
             <div className="text-center p-6">
@@ -160,16 +163,15 @@ export default function AboutClient() {
             <PiGithubLogo className="text-primary-solid mx-auto mb-4" size={40} />
             
             <h2 className="text-canvas-text-contrast font-semibold text-2xl">
-              Contribute or self-host
+              Contribute or host it yourself
             </h2>
-            
+
             <p className="text-canvas-text text-sm leading-relaxed mt-3 mb-6">
-              Clone it, fork it, build on top of it.
-              I&apos;d love to know.
+              Clone it, fork it, and build on top of it. Star the repo if it helps your team.
             </p>
 
             <a
-              href="https://github.com/faizan-devstack/devflow-ai"
+              href="https://github.com/faizan-devyst/devflow-ai"
               target="_blank"
               rel="noopener noreferrer"
               className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover px-6 py-2.5 rounded-lg font-medium text-sm inline-flex items-center justify-center gap-2 transition-colors"

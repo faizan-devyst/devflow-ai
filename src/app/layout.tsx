@@ -3,11 +3,11 @@ import { DM_Sans, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeToggle } from "@/components/layout/theme/theme-toggle";
 import { ThemeProvider } from "next-themes";
 import Header from "@/components/layout/header/header";
 import Footer from "@/components/layout/footer/footer";
 import { AuthProvider } from "@/components/providers/auth-provider";
+import { StoreProvider } from "@/components/providers/store-provider";
 
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -42,15 +42,16 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
-          <AuthProvider>
-            <Toaster position="bottom-right" />
-            <ThemeToggle />
-            <TooltipProvider>
-              <Header />
-              {children}
-              <Footer />
-            </TooltipProvider>
-          </AuthProvider>
+          <StoreProvider>
+            <AuthProvider>
+              <Toaster position="bottom-right" />
+              <TooltipProvider>
+                <Header />
+                {children}
+                <Footer />
+              </TooltipProvider>
+            </AuthProvider>
+          </StoreProvider>
         </ThemeProvider>
       </body>
     </html>

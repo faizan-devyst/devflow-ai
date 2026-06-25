@@ -36,7 +36,7 @@ export function ForgotPasswordCard() {
     handleSubmit,
     formState: { errors },
   } = useForm<ForgotPasswordValues>({
-    resolver: zodResolver(forgotPasswordSchema as any),
+    resolver: zodResolver(forgotPasswordSchema),
   });
 
   const onSubmit = async (values: ForgotPasswordValues) => {
@@ -53,13 +53,13 @@ export function ForgotPasswordCard() {
             description: "Please check your inbox for the password reset link.",
           });
         },
-        onError: (ctx: any) => {
+        onError: (ctx) => {
           toast.error("Request failed", {
             description: ctx.error.message || "Something went wrong.",
           });
         }
       });
-    } catch (err) {
+    } catch {
       toast.error("An unexpected error occurred.");
     } finally {
       setIsLoading(false);

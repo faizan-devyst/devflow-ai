@@ -4,8 +4,9 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   PiGithubLogo,
-  PiTwitterLogo,
+  PiXLogo,
   PiLinkedinLogo,
+  PiInstagramLogo,
 } from "react-icons/pi";
 
 import { usePathname } from "next/navigation";
@@ -26,9 +27,10 @@ const COMPANY_LINKS = [
 ];
 
 const SOCIAL_LINKS = [
-  { label: "GitHub", href: "https://github.com/faizan-devstack", icon: PiGithubLogo },
-  { label: "Twitter", href: "https://twitter.com/Faizan_devstack", icon: PiTwitterLogo },
-  { label: "LinkedIn", href: "https://linkedin.com/in/ifaizan114", icon: PiLinkedinLogo },
+  { label: "GitHub", href: "https://github.com/faizan-devyst/devflow-ai", icon: PiGithubLogo },
+  { label: "X", href: "https://twitter.com/hellodevyst", icon: PiXLogo },
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/devyst", icon: PiLinkedinLogo },
+  { label: "Instagram", href: "https://www.instagram.com/hellodevyst", icon: PiInstagramLogo },
 ];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
@@ -88,7 +90,7 @@ export default function Footer() {
               </span>
             </Link>
 
-            <p className="text-canvas-text text-sm max-w-[200px] leading-relaxed">
+            <p className="text-canvas-text text-sm max-w-50 leading-relaxed">
               Async standups and codebase onboarding for dev teams.
             </p>
 
@@ -117,8 +119,16 @@ export default function Footer() {
           <p className="text-canvas-text text-xs">
             © 2026 DevFlow AI. All rights reserved.
           </p>
-          <p className="text-canvas-text text-xs italic">
-            Built for dev teams who ship.
+          <p className="text-canvas-text text-xs">
+            Created by{" "}
+            <Link
+              href="https://devyst.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary-text hover:text-primary-solid transition-colors"
+            >
+              devyst.com
+            </Link>
           </p>
         </div>
       </div>

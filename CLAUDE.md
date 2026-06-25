@@ -1,202 +1,242 @@
-# CLAUDE.md — DevFlow AI
+# CLAUDE.md — Project Coding Guidelines
 
-Read fully before touching any file. This is the single source of truth for architecture, conventions, and build status.
-
----
-
-## What This Is
-
-DevFlow AI — SaaS for small dev teams. Two features: **StandupAI** (async standups → AI digest) and **Codebase Onboarding Agent** (GitHub repo → RAG-powered Q&A + onboarding docs). Built to demonstrate full-stack + AI engineering: LangChain/LangGraph, RAG, RBAC, GraphQL, multi-provider LLM routing.
+Read and strictly apply all rules before touching any file. Always use `pnpm` to add packages.
 
 ---
 
-## Stack (strict — ask before deviating)
+## Stack
 
-| Layer | Tech |
-|---|---|
-| Frontend | Next.js 15 App Router, TypeScript strict, Tailwind, ShadCN, Framer Motion |
-| Auth | Better Auth — session via `auth.api.getSession({ headers: await headers() })` |
-| ORM | Prisma → custom client output path, `@prisma/adapter-pg` |
-| Database | NeonDB (PostgreSQL) + pgvector extension |
-| Backend 1 | Next.js API Routes + Server Actions (light CRUD) |
-| Backend 2 | Express.js + Apollo GraphQL microservice (`server/`) — reads, RBAC, LangChain |
-| Backend 3 | Python FastAPI microservice (`python-service/`) — OCR, Speech, Vision, ingestion |
-| LLM primary | Claude API `claude-sonnet-4-5` — long-form, reasoning |
-| LLM secondary | Groq API (free) — fast summaries, simulates Azure OpenAI role |
-| Speech-to-Text | Groq Whisper (free) — voice standups |
-| Embeddings | HuggingFace Inference API (free) |
-| OCR | Tesseract.js (open source) |
-| Image analysis | Claude Vision API |
-| Orchestration | LangChain (chains) + LangGraph (stateful Q&A agent) |
-| Icons | `react-icons/pi` only — never lucide |
-| Email | Resend |
-| Hosting | Vercel (Next.js) + Railway free tier (Express + Python) |
+- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, shadcn/ui, Redux Toolkit
+- **Backend:** Next.js Route Handlers (serverless — no separate backend process)
+- **Database:** PostgreSQL + Prisma 7
+- **Auth:** Better-Auth
+- **Icons:** react-icons/pi (Phosphor)
+- **State:** Redux Toolkit (global), React state (local UI only)
 
 ---
 
-## Color System — DesignRift theme, never hardcode
-
-```
-text-canvas-text-contrast   → headings
-text-canvas-text            → muted text
-text-primary-text           → teal brand text
-bg-canvas-base               → page bg
-bg-canvas-bg-subtle          → card bg
-bg-primary-solid              → primary button
-border-canvas-border/50      → ALWAYS /50 opacity
-```
-Groups: `canvas-*`, `primary-*`, `secondary-*`, `success-*`, `warning-*`, `alert-*`, `info-*` (each: base, bg-subtle, bg, bg-hover, bg-active, line, border, border-hover, solid, solid-hover, text, text-contrast, on-*).
-
-ShadCN overrides: `bg-primary`→`bg-primary-solid`, `text-muted-foreground`→`text-canvas-text`, `border-input`→`border-canvas-border/50`, `bg-background`→`bg-canvas-base`, `bg-card`→`bg-canvas-bg-subtle`, `ring-ring`→`ring-primary-solid`, `text-destructive`→`text-alert-text`.
-
----
-
-## File Structure
+## 1. Project Structure
 
 ```
 src/
 ├── app/
-│   ├── (auth)/                       # Better Auth pages — DONE
-│   ├── (app)/dashboard/
-│   │   ├── page.tsx                  # Overview — DONE
-│   │   ├── settings/                 # DONE
-│   │   ├── standup/                  # Mock UI DONE, real data PENDING
-│   │   │   ├── page.tsx
-│   │   │   └── [sprintId]/page.tsx
-│   │   └── onboarding/               # Mock UI DONE, real data PENDING
-│   │       ├── page.tsx
-│   │       └── [repoId]/page.tsx
-│   └── api/                          # Light routes only
+│   ├── [route_name]/page.tsx         # Route entry
+│   └── api/
+│       ├── auth/[...all]/route.ts    # Better-Auth catch-all
+│       └── [resource]/route.ts       # Resource route handlers
 ├── components/
-│   ├── ui/                           # ShadCN, theme-overridden — DONE
-│   ├── standup/                      # 5 components — DONE
-│   ├── onboarding/                   # 6 components — DONE
-│   └── dashboard/, shared/           # DONE
+│   ├── [route_name]/                 # Feature-specific components
+│   └── ui/                           # shadcn/ui primitives only
+├── store/
+│   ├── index.ts
+│   └── slices/featureSlice.ts
 ├── lib/
-│   ├── auth.ts, db/prisma.ts         # DONE
-│   ├── mock/                         # standup + onboarding mock data — DONE, to be removed in Phase 6
-│   └── ai/                           # PENDING — wraps server/ calls from frontend
-├── actions/                          # PENDING — replace mock data calls
-server/                                # Express + Apollo — DONE (scaffolded Phase 4)
-├── src/middleware/{auth,rbac}.ts
-├── src/graphql/{schema,resolvers}.ts
-├── src/langchain/{model-router,standup-chain,digest-chain,rag-chain}.ts
-python-service/                        # FastAPI — DONE (scaffolded Phase 5)
-├── routers/{speech,ocr,vision,search,ingest}.py
-├── services/{azure_speech,azure_ocr,azure_vision,azure_search,github}.py
-prisma/schema.prisma                   # 14 tables — DONE
+│   ├── api.ts                        # Client-side fetch utility
+│   ├── auth.ts                       # Better-Auth server instance
+│   ├── auth-client.ts                # Better-Auth client instance
+│   └── prisma.ts                     # Prisma singleton
+├── types/index.ts
+└── hooks/useFeatureName.ts
+```
+
+- One component per file; filename = exported component name.
+- Keep `page.tsx` thin — delegate logic and JSX to components.
+- No barrel `index.ts` unless the folder has 3+ public exports.
+
+---
+
+## 2. Rendering Strategy
+
+Document the choice with a comment at the top of every `page.tsx`.
+
+| Strategy | When | How |
+|---|---|---|
+| **SSR** | Auth-gated, user-specific | `export const dynamic = 'force-dynamic'` |
+| **ISR** | Public, infrequently changing | `export const revalidate = 60` |
+| **CSR** | Interactive, no SEO need | `'use client'` + Redux |
+
+Don't mix strategies in one `page.tsx`. Split into server wrapper + client child if needed.
+
+---
+
+## 3. Colors — Designrift CSS Variables Only
+
+Never use Tailwind color utilities, hardcoded hex, or arbitrary values.
+
+| Class | Purpose |
+|---|---|
+| `text-canvas-text` | Muted / secondary body text |
+| `text-canvas-text-contrast` | Primary body text |
+| `bg-canvas-base` | Page background |
+| `bg-canvas-bg-subtle` | Card / surface background |
+| `bg-canvas-bg-hover` | Hover state on surfaces |
+| `border-canvas-border/50` | Default borders |
+| `border-canvas-border-hover` | Hover borders |
+| `text-primary-text` / `text-primary-text-contrast` | Brand text |
+| `bg-primary-solid` / `bg-primary-bg-subtle` | Brand backgrounds |
+| `text-success-text` / `text-alert-text` / `text-warning-text` / `text-info-text` | Semantic states |
+
+---
+
+## 4. Components — shadcn/ui Only
+
+Always import from `@/components/ui`. Never use raw HTML elements or third-party component libraries when a shadcn equivalent exists. Apply Designrift colors from `@/global.css`. `className` on the **parent only**.
+
+---
+
+## 5. Icons — react-icons/pi Only
+
+Import exclusively from `react-icons/pi`. Verify names before use — invented names cause runtime errors. Safe fallbacks: `PiHouse`, `PiUser`, `PiBell`, `PiGear`, `PiX`, `PiCheck`, `PiArrowRight`, `PiArrowLeft`, `PiPlus`, `PiMinus`, `PiMagnifyingGlass`, `PiTrash`, `PiPencil`, `PiEye`, `PiEyeSlash`, `PiWarning`, `PiInfo`. If unsure, add `// TODO: replace with correct Pi icon`. Colors via Designrift classes only.
+
+---
+
+## 6. Redux — Global State Only
+
+Use Redux Toolkit with `createSlice` and `createAsyncThunk`. Only shared cross-route state goes in Redux — local UI state (modals, hover, form drafts) stays in `useState`. Handle loading/error in the slice.
+
+---
+
+## 7. Database — PostgreSQL + Prisma 7
+
+**Singleton:** always import from `src/lib/prisma.ts` — never instantiate `PrismaClient` inline.
+
+```ts
+// src/lib/prisma.ts
+import { PrismaClient } from '@prisma/client'
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
+export const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ['error'] })
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+```
+
+**Schema rules:**
+- `cuid()` (or `uuid()`) PKs — never auto-increment integers on the frontend.
+- Always `createdAt @default(now())` and `updatedAt @updatedAt`.
+- `@map` / `@@map` to keep DB columns snake_case, Prisma fields camelCase.
+- Schema changes: `pnpm prisma migrate dev --name <desc>` then `pnpm prisma generate`. Never edit DB directly.
+
+**Types:** use Prisma-generated types — never hand-roll parallel interfaces.
+
+```ts
+import type { User, Product } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+
+export type UserWithPosts = Prisma.UserGetPayload<{ include: { posts: true } }>
 ```
 
 ---
 
-## Database Schema (Prisma — current, source of truth)
+## 8. API — Next.js Route Handlers
 
-Existing Better Auth: `User` (extended), `Session`, `Account`, `Verification` — untouched.
+All backend logic in `src/app/api/`. Always guard with `auth.api.getSession` before any DB call.
 
-Added: `Team`, `TeamMember` (role: OWNER/MEMBER/VIEWER), `Sprint` (status: ACTIVE/COMPLETED/PLANNED), `StandupEntry`, `Repo` (status: PENDING/PROCESSING/READY/FAILED), `RepoChunk` (`embedding vector(1536)`), `RepoDocument`, `OnboardingSession`, `PromptTemplate`.
+```ts
+// src/app/api/products/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { headers } from 'next/headers'
+import { auth } from '@/lib/auth'
+import { prisma } from '@/lib/prisma'
 
-Soft delete (`deletedAt`) on: Team, Sprint, Repo. All models have `createdAt`.
+export async function GET() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  return NextResponse.json(await prisma.product.findMany())
+}
+```
 
-Schema change workflow: edit `prisma/schema.prisma` → `npx prisma db push` → `npx prisma generate` → `npx tsc --noEmit`.
+Dynamic segments: `{ params }: { params: Promise<{ id: string }> }` — always `await params`.
+
+**Client utility** (`src/lib/api.ts`) — all client fetches go through here, no inline fetch in components:
+
+```ts
+const BASE = process.env.NEXT_PUBLIC_APP_URL ?? ''
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  const res = await fetch(`${BASE}${path}`, { ...init, headers: { 'Content-Type': 'application/json', ...init?.headers } })
+  if (!res.ok) throw new Error(`API error ${res.status}`)
+  return res.json()
+}
+```
+
+Server components query Prisma directly — never call `apiFetch` from a server component.
 
 ---
 
-## RBAC
+## 9. Authentication — Better-Auth
 
+```ts
+// src/lib/auth.ts
+import { betterAuth } from 'better-auth'
+import { prismaAdapter } from 'better-auth/adapters/prisma'
+import { prisma } from '@/lib/prisma'
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, { provider: 'postgresql' }),
+  emailAndPassword: { enabled: true },
+})
+export type Session = typeof auth.$Infer.Session
 ```
-ROLE_HIERARCHY = { OWNER: 3, MEMBER: 2, VIEWER: 1 }
-OWNER  → everything incl. team mgmt, prompt templates, billing
-MEMBER → submit standups, trigger onboarding, use Q&A
-VIEWER → read-only (digests, progress)
+
+```ts
+// src/lib/auth-client.ts
+import { createAuthClient } from 'better-auth/react'
+export const authClient = createAuthClient({ baseURL: process.env.NEXT_PUBLIC_APP_URL })
+export const { signIn, signOut, signUp, useSession } = authClient
 ```
-Enforced in: Express middleware (`requireRole`), Prisma query filters, Next.js UI conditionals. Never trust client-only checks.
+
+```ts
+// src/app/api/auth/[...all]/route.ts
+import { auth } from '@/lib/auth'
+import { toNextJsHandler } from 'better-auth/next-js'
+export const { GET, POST } = toNextJsHandler(auth)
+```
+
+**Middleware** — protect pages via `middleware.ts` at project root using `auth.api.getSession`.  
+**Client** — use `useSession` from `auth-client.ts`; never fetch `/api/auth/session` manually.  
+**Route handlers** — always derive `userId` from `session.user.id`; never trust client-supplied IDs.
 
 ---
 
-## AI Prompt Pattern (always XML-tagged)
+## 10. TypeScript
 
-```
-System: <role>...</role> <rules>...</rules>
-User:   <task>...</task> <context>...</context> <format>...</format>
-```
-Token budgets: standup summary=256, digest=1024, onboarding doc=4096, chat=1024.
-
-Model routing (`server/src/langchain/model-router.ts`):
-- `STANDUP_SUMMARY` → Groq (fast/cheap)
-- `SPRINT_DIGEST`, `ONBOARDING_DOC`, `CODE_QA` → Claude `claude-sonnet-4-5`
-- `EMBEDDING` → HuggingFace Inference API
-
-RAG pipeline: GitHub fetch → semantic chunk (tiktoken, ~400 tok, file-path header) → HF embed → pgvector store → hybrid retrieval (vector + `ts_vector` keyword) → top 5 chunks → Claude context → stream. Q&A uses LangGraph (stateful, multi-turn) — not a plain chain.
+- No `any`. Use `unknown` + narrowing, or define a proper type.
+- Props interfaces above the component, named `[ComponentName]Props`.
+- Shared types in `src/types/index.ts`; feature types co-located in slice or component file.
+- Prisma-generated types for all DB models.
 
 ---
 
-## Coding Rules
+## 11. Code Quality
 
-**TypeScript** — zero `any`; explicit return types on exported functions; `unknown` + narrow over casting.
-
-**API Routes** — auth check first → zod validate → try/catch → proper status codes → stream AI responses.
-
-**Server Actions** — `'use server'` → auth → zod → write → `revalidatePath()`.
-
-**Prisma** — singleton from `src/lib/db/prisma.ts`; never hard delete (`deletedAt`); always filter `deletedAt: null`; `$transaction()` for multi-step writes; pgvector needs raw `$queryRaw`.
-
-**Animations** — Framer Motion on every interactive element. Card hover `whileHover={{y:-2}}`; list stagger `staggerChildren:0.05`; page entry fade+slide; modal scale 0.95→1. Exact variants are documented in `.claude/rules/components.md` from actual built components — read it, don't reinvent.
-
-**Icons** — `react-icons/pi` only.
+- **No duplication** — repeated JSX → component; repeated logic → hook or util.
+- **No `console.log`**, **no `shadow-*`**, **no `any`**.
+- **Comments explain *why* only** — never *what*.
+- **No layout/logic changes** unless explicitly requested.
+- Build components dynamic (props) not static (hardcoded values).
 
 ---
 
-## Build Status
+## 12. Pre-Commit Checklist
 
-```
-[x] Phase 1 — Setup, Better Auth, deployed (landing/about/terms/privacy/auth/settings)
-[x] Phase 2 — Mock frontend: standup (5 components) + onboarding (6 components) + dashboard overview
-[x] Phase 3 — Prisma schema: 14 tables, 4 enums, pgvector enabled
-[x] Phase 4 — Express microservice: GraphQL, RBAC, LangChain chains scaffolded
-[x] Phase 5 — Python FastAPI microservice: Speech/OCR/Vision/Search/Ingest scaffolded
-[ ] Phase 6 — Connect frontend to real data (remove src/lib/mock/, wire GraphQL + actions)
-[ ] Phase 7 — Core AI live: standup summarizer, sprint digest, health scoring
-[ ] Phase 8 — RAG live: repo ingestion, embeddings, LangGraph Q&A agent
-[ ] Phase 9 — Voice standup (Groq Whisper), document OCR upload, hybrid search
-[ ] Phase 10 — Prompt templates UI, cost dashboard, prod deploy, README
-```
-
----
-
-## Environment Variables
-
-```
-DATABASE_URL=  DIRECT_URL=
-BETTER_AUTH_SECRET=  BETTER_AUTH_URL=
-ANTHROPIC_API_KEY=
-GROQ_API_KEY=
-HF_TOKEN=
-GITHUB_TOKEN=
-RESEND_API_KEY=
-NEXT_PUBLIC_APP_URL=
-EXPRESS_API_URL=        # server/ on Railway
-PYTHON_SERVICE_URL=     # python-service/ on Railway
-```
+- [ ] Designrift classes only — no raw Tailwind colors or hex
+- [ ] All UI from `@/components/ui`; all icons from `react-icons/pi` and verified
+- [ ] Rendering strategy declared in `page.tsx`
+- [ ] Redux for shared state only; local UI state in `useState`
+- [ ] Client fetches via `src/lib/api.ts`; server components use Prisma directly
+- [ ] Prisma imported from `src/lib/prisma.ts` — never instantiated inline
+- [ ] `auth.api.getSession` checked before every DB call in route handlers
+- [ ] Prisma-generated types used — no hand-rolled model interfaces
+- [ ] `pnpm prisma generate` run after schema changes
+- [ ] No `any`, `console.log`, shadows, or duplication
+- [ ] `className` on parent only; comments explain *why* only
 
 ---
 
-## Commands
+## 13. Conventions
 
-```bash
-npm run dev                    # Next.js
-npx prisma db push / generate / studio
-npx tsc --noEmit
-cd server && npm run dev       # Express
-cd python-service && uvicorn main:app --reload   # FastAPI
-```
-
----
-
-## Pre-Commit Checklist
-- [ ] Zero hardcoded colors — DesignRift classes only, borders `/50`
-- [ ] Icons from `react-icons/pi` only
-- [ ] Framer Motion on new interactive elements, matching existing variants
-- [ ] No `any`, no raw Prisma deletes, `deletedAt: null` filter present
-- [ ] Auth + RBAC check before any DB write or AI trigger
-- [ ] AI prompts use XML tags, correct model per task type
-- [ ] `npx tsc --noEmit` passes with 0 errors
+- **Toasts only** for feedback — `sonner` `toast.error` / `toast.success`. No inline `FormMessage`, no `error` state just to render a message. List fetches: `dispatch(thunk()).unwrap().catch(toast.error)`. Persistent guidance (e.g. "create a brand first") → plain inline text.
+- **No effects for setState** — init dialog/form state in `onOpenChange`; derive defaults instead.
+- **Destructive actions** — shared `ConfirmDialog` (AlertDialog), never `window.confirm`.
+- **Shared primitives** in `src/components/shared/` (`ConfirmDialog`, `SearchInput`, `BrandSelect`, `DataTablePagination`).
+- **Page chrome** — `PageHeader` sticky with `children` slot. Fixed-height list pages: `h-screen flex flex-col overflow-hidden` → sticky header, `flex-1 min-h-0` table, pinned `DataTablePagination`.
+- **Pagination** — client-side via `DataTablePagination`; reset to page 1 in filter/search handlers.
+- **IDs** — `cuid()` strings everywhere; reference as `id` (never `_id`).
+- **Migrations** — `pnpm prisma migrate dev --name <desc>`; commit migration files.
+- **Brand-scoped data** requires `BrandSelect`; send `brandId` on create.

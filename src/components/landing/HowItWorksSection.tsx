@@ -19,20 +19,20 @@ const STANDUP_STEPS = [
   {
     num: 1,
     icon: <PiPencilLine />,
-    title: "Log Your Update",
-    desc: "Type what you did, what's next, and any blockers whenever suits you.",
+    title: "Post your update",
+    desc: "Share what you did, what's next, and any blockers, in writing, whenever it suits you.",
   },
   {
     num: 2,
     icon: <PiSparkle />,
-    title: "AI Summarizes It",
-    desc: "Claude turns raw notes into a clean, structured standup entry with blockers flagged.",
+    title: "AI summarizes the day",
+    desc: "Claude turns the team's updates into a clear daily summary with blockers surfaced up top.",
   },
   {
     num: 3,
     icon: <PiEnvelope />,
-    title: "Digest Goes Out",
-    desc: "Every Friday, a professional sprint report lands in your team and client's inbox.",
+    title: "Send the weekly digest",
+    desc: "One click compiles the week into a sprint digest and emails it to everyone on the team.",
   },
 ];
 
@@ -40,20 +40,20 @@ const ONBOARDING_STEPS = [
   {
     num: 1,
     icon: <PiLink />,
-    title: "Paste Repo URL",
-    desc: "Drop in any GitHub repo URL. No OAuth, no app installs, no permissions required.",
+    title: "Connect a repo",
+    desc: "Add any GitHub repository. A personal access token is only needed for private repos, and there is no app to install.",
   },
   {
     num: 2,
     icon: <PiCode />,
-    title: "AI Reads the Code",
-    desc: "DevFlow ingests files, maps the architecture, and generates a full onboarding document.",
+    title: "It indexes the code",
+    desc: "DevFlow fetches, chunks, and embeds your code into a private index, showing progress as it goes.",
   },
   {
     num: 3,
     icon: <PiChatCircleText />,
-    title: "Chat With the Codebase",
-    desc: "Ask questions in plain English. Get answers grounded in your actual code with file references.",
+    title: "Search, ask, and onboard",
+    desc: "Run semantic searches, ask questions answered with file and line citations, and generate an onboarding guide.",
   },
 ];
 
@@ -120,9 +120,9 @@ export default function HowItWorksSection() {
         >
           <p className="text-primary-text text-xs tracking-widest uppercase font-medium">How It Works</p>
           <h2 className="text-canvas-text-contrast text-4xl font-semibold mt-2">
-            Set up in 5 minutes. Runs on autopilot.
+            Set up in minutes. No meetings required.
           </h2>
-          <p className="text-canvas-text text-lg mt-3">Two workflows. Zero manual reporting.</p>
+          <p className="text-canvas-text text-lg mt-3">Two workflows, both built to run async.</p>
         </motion.div>
 
         <div className="mt-14 max-w-4xl mx-auto">

@@ -15,10 +15,14 @@ model User {
   email         String    @unique
   emailVerified Boolean   @default(false)
   image         String?
+  appRole       AppRole   @default(MEMBER) @map("app_role")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  teamMemberships TeamMember[]
+  standups      Standup[]
+  sentInvitations Invitation[] @relation("InvitedBy")
 
   @@map("user")
 }
@@ -65,4 +69,142 @@ createdAt  DateTime @default(now())
 updatedAt  DateTime @updatedAt
 
   @@map("verification")
+}
+
+// ─── Team / Workspace ────────────────────────────────────────────────────────
+
+// Global, app-wide role. Exactly one OWNER exists, seeded manually.
+enum AppRole {
+  OWNER
+  MEMBER
+}
+
+// Role within a single team.
+enum Role {
+  TEAM_LEAD
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+  EXPIRED
+}
+
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+  members      TeamMember[]
+  standups     Standup[]
+  repositories Repository[]
+  invitations  Invitation[]
+
+  @@map("team")
+}
+
+model Invitation {
+  id          String       @id @default(cuid())
+  email       String
+  teamId      String       @map("team_id")
+  role        Role         @default(MEMBER)
+  token       String       @unique
+  status      InviteStatus @default(PENDING)
+  invitedById String       @map("invited_by_id")
+  expiresAt   DateTime     @map("expires_at")
+  acceptedAt  DateTime?    @map("accepted_at")
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  team        Team         @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  invitedBy   User         @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([teamId])
+  @@index([email])
+  @@map("invitation")
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  role      Role     @default(MEMBER)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@map("team_member")
+}
+
+// ─── StandupAI ───────────────────────────────────────────────────────────────
+
+model Standup {
+  id        String   @id @default(cuid())
+  teamId    String   @map("team_id")
+  userId    String   @map("user_id")
+  date      DateTime @db.Date
+  yesterday String
+  today     String
+  blockers  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId, date])
+  @@index([teamId, date])
+  @@map("standup")
+}
+
+// ─── Onboarding Agent ────────────────────────────────────────────────────────
+
+enum RepoStatus {
+  PENDING
+  INDEXING
+  READY
+  FAILED
+}
+
+model Repository {
+  id            String      @id @default(cuid())
+  teamId        String      @map("team_id")
+  owner         String
+  repo          String
+  url           String
+  defaultBranch String?     @map("default_branch")
+  status        RepoStatus  @default(PENDING)
+  chunkCount    Int         @default(0) @map("chunk_count")
+  embeddedCount Int         @default(0) @map("embedded_count")
+  error         String?
+  lastIndexedAt DateTime?   @map("last_indexed_at")
+  onboardingDoc String?     @map("onboarding_doc")
+  onboardingGeneratedAt DateTime? @map("onboarding_generated_at")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  team          Team        @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  chunks        CodeChunk[]
+
+  @@unique([teamId, owner, repo])
+  @@index([teamId])
+  @@map("repository")
+}
+
+model CodeChunk {
+  id           String     @id @default(cuid())
+  repositoryId String     @map("repository_id")
+  path         String
+  language     String?
+  content      String
+  startLine    Int        @map("start_line")
+  endLine      Int        @map("end_line")
+  chunkIndex   Int        @map("chunk_index")
+  embedding    Unsupported("vector(1536)")?
+  createdAt    DateTime   @default(now()) @map("created_at")
+  repository   Repository @relation(fields: [repositoryId], references: [id], onDelete: Cascade)
+
+  @@index([repositoryId])
+  @@map("code_chunk")
 }

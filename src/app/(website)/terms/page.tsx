@@ -5,9 +5,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
+// SSR — auth-gated: redirects to /dashboard when a session exists (reads request headers).
+export const dynamic = "force-dynamic";
+
 export const metadata = constructMetadata({
   title: "Terms of Service",
-  description: "Terms of service for DevFlow AI — open source developer productivity platform.",
+  description: "Terms of service for DevFlow AI, the open source developer productivity platform.",
   image: `/api/og?title=Terms of Service&description=Legal&type=page`,
   noIndex: true,
 });
@@ -79,7 +82,7 @@ export default async function TermsPage() {
               </h2>
             </div>
             <p className="text-canvas-text leading-relaxed">
-              DevFlow AI requires you to provide your own third-party API keys (Anthropic,
+              DevFlow AI requires you to provide your own third party API keys (Anthropic,
               OpenAI, Resend). You are solely responsible for your API usage, associated costs,
               and compliance with those providers&apos; terms of service. Your data is stored in
               your own database. We do not have access to it.
@@ -166,7 +169,7 @@ export default async function TermsPage() {
           <p className="text-canvas-text-contrast font-medium">Have questions?</p>
           <p className="text-canvas-text text-sm mt-1 mb-4">Open an issue on GitHub</p>
           <a
-            href="https://github.com/faizan-devstack/devflow-ai"
+            href="https://github.com/faizan-devyst/devflow-ai"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-primary-solid text-primary-on-primary hover:bg-primary-solid-hover px-4 py-2 rounded-md font-medium text-sm inline-flex items-center gap-2 transition-colors"

@@ -3,10 +3,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Accordion as AccordionPrimitive } from "radix-ui";
-import { PiCaretDown, PiRocketLaunch, PiGithubLogo } from "react-icons/pi";
+import { PiCaretDown, PiRocketLaunch } from "react-icons/pi";
 import Link from "next/link";
 import WaveDivider from "@/components/animations/WaveDivider";
 import { Button } from "@/components/ui/button";
+import { GithubStars } from "@/components/landing/github-stars";
 
 const FAQ_ITEMS = [
   {
@@ -17,17 +18,17 @@ const FAQ_ITEMS = [
   {
     id: "faq-2",
     q: "Do I need to provide my own API keys?",
-    a: "Yes. DevFlow AI uses the Claude API for AI features and OpenAI for embeddings. You add your own keys in settings. This keeps your data private and gives you full control over usage and costs.",
+    a: "Yes. DevFlow AI uses the Claude API for summaries, digests, codebase answers, and onboarding docs, and OpenAI for code embeddings. You bring your own keys, so your data stays private and you keep full control over usage and cost.",
   },
   {
     id: "faq-3",
-    q: "Can I self-host DevFlow AI?",
-    a: "Absolutely. Clone the repo, add your environment variables, and deploy anywhere that runs Next.js, Vercel, Railway, or your own server.",
+    q: "Can I host DevFlow AI myself?",
+    a: "Absolutely. Clone the repo, add your environment variables, and deploy anywhere that runs Next.js: Vercel, Railway, or your own server.",
   },
   {
     id: "faq-4",
-    q: "Is my code safe when using the Codebase Onboarding feature?",
-    a: "Your repo is only analyzed when you explicitly connect it. Code chunks are stored in your own database. Nothing is shared externally beyond the AI API calls you make.",
+    q: "Is my code safe when I connect a repository?",
+    a: "A repo is only indexed when you explicitly connect it. Access tokens are used once to fetch the code and never stored. The indexed code lives in your own database, and nothing leaves your stack beyond the AI API calls you choose to make.",
   },
   {
     id: "faq-5",
@@ -37,7 +38,7 @@ const FAQ_ITEMS = [
   {
     id: "faq-6",
     q: "What AI models does DevFlow AI use?",
-    a: "Claude Sonnet (claude-sonnet-4.5) for all text generation and summaries, and OpenAI text-embedding-3-small for semantic codebase search.",
+    a: "Claude Opus (claude-opus-4-8) for standup summaries, weekly digests, codebase answers, and onboarding docs, and OpenAI's text-embedding-3-small for semantic code search.",
   },
 ];
 
@@ -126,17 +127,19 @@ function CtaSection() {
         </div>
 
         <h2 className="text-canvas-text-contrast text-4xl font-semibold mt-4">Built for developers, by developers.</h2>
-        <p className="text-primary-text text-lg mt-3">Open source, self hostable, and free forever. Bring your own API keys and own your data completely.</p>
+        <p className="text-primary-text text-lg mt-3">Open source, free forever, and yours to host. Bring your own API keys and own your data completely.</p>
 
-        <div className="mt-8 flex gap-4 justify-center flex-wrap">
-          <Button asChild className="bg-primary-solid text-primary-on-primary">
-            <Link href="/sign-up">Get Started Free</Link>
+        <div className="mt-8 flex justify-center">
+          <Button asChild size="lg" className="bg-primary-solid text-primary-on-primary">
+            <Link href="/sign-in">Sign in</Link>
           </Button>
-          <Button asChild variant="ghost">
-            <a href="https://github.com/faizan-devstack/devflow-ai" target="_blank" rel="noopener noreferrer">
-              <PiGithubLogo className="mr-2" /> View on GitHub
-            </a>
-          </Button>
+        </div>
+
+        <div className="mt-6">
+          <GithubStars />
+          <p className="text-canvas-text text-sm mt-4">
+            Fork it, run it on your own stack, and if it saves your team time, a star helps other teams find it.
+          </p>
         </div>
       </motion.div>
     </section>

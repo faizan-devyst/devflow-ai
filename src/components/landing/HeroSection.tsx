@@ -2,18 +2,21 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PiSparkle, PiArrowRight } from "react-icons/pi";
+import { PiSparkle, PiArrowRight, PiShieldCheck, PiKey, PiDatabase } from "react-icons/pi";
 import { TextRotate } from "../animations/TextRotate";
 import { Button } from "../ui/button";
 
-const ROTATING_WORDS = ["Dev Teams", "Async Standups", "Codebase Onboarding", "Agencies"];
+const ROTATING_WORDS = [
+  "Engineering Teams",
+  "Async Standups",
+  "Codebase Onboarding",
+  "Software Agencies",
+];
 
-const AVATARS = [
-  { initials: "JK", id: "jk" },
-  { initials: "AM", id: "am" },
-  { initials: "RP", id: "rp" },
-  { initials: "SL", id: "sl" },
-  { initials: "TW", id: "tw" },
+const TRUST_POINTS = [
+  { icon: PiShieldCheck, label: "Secure team workspaces" },
+  { icon: PiKey, label: "Bring your own API keys" },
+  { icon: PiDatabase, label: "Your data, your database" },
 ];
 
 export default function HeroSection() {
@@ -31,7 +34,7 @@ export default function HeroSection() {
         >
           <span className="inline-flex items-center gap-2 bg-primary-bg border border-primary-border/50 text-primary-text text-xs px-3 py-1.5 rounded-full">
             <PiSparkle className="text-primary-solid" />
-            AI-Powered Dev Team Workspace
+            The AI workspace for engineering teams
           </span>
         </motion.div>
 
@@ -41,8 +44,9 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
         >
-          The AI Workspace for{" "}
+          Less status reporting.{" "}
           <br className="hidden sm:block" />
+          More shipping, for{" "}
           <span className="inline-flex overflow-hidden h-[1.1em] align-bottom">
             <TextRotate
               texts={ROTATING_WORDS}
@@ -56,12 +60,14 @@ export default function HeroSection() {
         </motion.h1>
 
         <motion.p
-          className="mt-4 text-canvas-text text-lg max-w-2xl mx-auto leading-relaxed"
+          className="mt-5 text-canvas-text text-lg max-w-2xl mx-auto leading-relaxed"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
         >
-          Async standups your team will actually use. Instant codebase onboarding. Weekly digests clients love.
+          DevFlow AI gives your team written async standups with AI summaries and one click
+          weekly digests, plus an onboarding agent that indexes any GitHub repo so new
+          engineers learn the codebase by asking questions instead of reading stale wikis.
         </motion.p>
 
         <motion.div
@@ -71,38 +77,31 @@ export default function HeroSection() {
           transition={{ duration: 0.5, delay: 0.35 }}
         >
           <Button variant="default" size="lg" asChild>
-            <Link href="/sign-up" className="flex items-center gap-2">
-              Start Free
+            <Link href="/sign-in" className="flex items-center gap-2">
+              Sign in
               <PiArrowRight />
             </Link>
           </Button>
 
           <Button variant="outline" size="lg" asChild>
             <Link href="#how-it-works" className="flex items-center gap-2">
-              Watch Demo
+              See how it works
             </Link>
           </Button>
         </motion.div>
 
         <motion.div
-          className="mt-6 flex items-center justify-center"
+          className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.45 }}
         >
-          <div className="flex items-center">
-            {AVATARS.map((avatar, i) => (
-              <div
-                key={avatar.id}
-                className={`w-8 h-8 rounded-full bg-primary-bg text-primary-text text-xs font-medium flex items-center justify-center border-2 border-canvas-base select-none ${i !== 0 ? "-ml-2" : ""}`}
-              >
-                {avatar.initials}
-              </div>
-            ))}
-          </div>
-          <p className="ml-3 text-canvas-text text-sm">
-            <span className="text-canvas-text-contrast font-medium">200+</span> developers trust DevFlow
-          </p>
+          {TRUST_POINTS.map(({ icon: Icon, label }) => (
+            <span key={label} className="inline-flex items-center gap-2 text-canvas-text text-sm">
+              <Icon className="text-primary-text" />
+              {label}
+            </span>
+          ))}
         </motion.div>
       </div>
     </section>

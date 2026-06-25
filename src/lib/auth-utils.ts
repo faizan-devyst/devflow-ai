@@ -1,4 +1,6 @@
 import { auth } from "@/lib/auth";
+import type { Session } from "@/lib/auth";
+import { AppRole } from "@/generated/prisma/enums";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 
@@ -22,12 +24,27 @@ export function unauthorizedResponse(message = "Unauthorized") {
 }
 
 /**
+ * Return a standard 403 Forbidden response.
+ * Use this when the caller is authenticated but lacks permission.
+ */
+export function forbiddenResponse(message = "Forbidden") {
+  return NextResponse.json({ error: message }, { status: 403 });
+}
+
+/**
+ * True when the session belongs to the single global app Owner.
+ */
+export function isAppOwner(session: Session | null): boolean {
+  return session?.user?.appRole === AppRole.OWNER;
+}
+
+/**
  * Return a standard 400 Bad Request response.
  * Use this when request validation fails.
  */
-export function badRequestResponse(message = "Bad Request", details?: any) {
+export function badRequestResponse(message = "Bad Request", details?: unknown) {
   return NextResponse.json(
-    { error: message, ...(details && { details }) },
+    { error: message, ...(details ? { details } : {}) },
     { status: 400 }
   );
 }
@@ -43,6 +60,6 @@ export function internalErrorResponse(message = "Internal server error") {
 /**
  * Return a standard 200 success response with data.
  */
-export function successResponse(data: any, status = 200) {
+export function successResponse(data: unknown, status = 200) {
   return NextResponse.json(data, { status });
 }

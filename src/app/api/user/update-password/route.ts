@@ -31,10 +31,11 @@ export async function PATCH(request: Request) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error: any) {
+  } catch (error) {
     if (error instanceof z.ZodError) {
       return new NextResponse(JSON.stringify(error.issues), { status: 400 });
     }
-    return new NextResponse(error.message || "Internal Server Error", { status: 500 });
+    const message = error instanceof Error ? error.message : "Internal Server Error";
+    return new NextResponse(message, { status: 500 });
   }
 }

@@ -2,12 +2,13 @@
 
 import { useSession } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useRef, createContext } from "react";
 import { toast } from "sonner";
+import type { AuthUser } from "@/types";
 
 interface AuthContextType {
   loading: boolean;
-  user: any | null;
+  user: AuthUser | null;
 }
 
 const AuthContext = createContext<AuthContextType>({ loading: true, user: null });
@@ -17,10 +18,11 @@ export function markSigningOut() { _isSigningOut = true; }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { data: session, isPending } = useSession();
-  const [lastWasAuthenticated, setLastWasAuthenticated] = useState(false);
+  // Track the previous auth state in a ref to detect transitions without setState-in-effect.
+  const wasAuthenticated = useRef(false);
 
   useEffect(() => {
-    if (lastWasAuthenticated && !session && !isPending) {
+    if (wasAuthenticated.current && !session && !isPending) {
       if (_isSigningOut) {
         _isSigningOut = false;
         toast.success("Signed out", { description: "You have been signed out successfully." });
@@ -28,8 +30,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         toast.error("Session expired", { description: "Your session has expired. Please sign in again." });
       }
     }
-    setLastWasAuthenticated(!!session);
-  }, [session, isPending, lastWasAuthenticated]);
+    if (!isPending) wasAuthenticated.current = !!session;
+  }, [session, isPending]);
 
   return (
     <AuthContext.Provider value={{ loading: isPending, user: session?.user ?? null }}>

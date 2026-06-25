@@ -5,7 +5,7 @@ import {
   PiCheck,
   PiGithubLogo,
   PiChatCircleText,
-  PiUsers,
+  PiMagnifyingGlass,
   PiArrowRight,
   PiWarning,
   PiRobot,
@@ -107,10 +107,10 @@ export default function FeaturesSection() {
         >
           <p className="text-primary-text text-xs tracking-widest uppercase font-medium">Features</p>
           <h2 className="text-canvas-text-contrast text-4xl font-semibold mt-2">
-            Two tools. One focused workspace.
+            Two workflows. One focused workspace.
           </h2>
           <p className="text-canvas-text text-lg mt-3 max-w-xl mx-auto">
-            Everything a small dev team or agency needs, nothing they don&apos;t.
+            Keep the team in sync and get new engineers productive, without the meetings or the wiki archaeology.
           </p>
         </motion.div>
 
@@ -126,17 +126,17 @@ export default function FeaturesSection() {
                 StandupAI
               </span>
               <h3 className="text-canvas-text-contrast text-2xl font-semibold mt-3">
-                Async standups that actually work
+                Standups without the meeting
               </h3>
               <p className="text-canvas-text text-sm mt-2 leading-relaxed max-w-md">
-                No more 9am calls. Team members log anytime, AI summarizes instantly, clients get weekly digests automatically.
+                Everyone posts what they did, what&apos;s next, and any blockers, in writing, on their own time. Claude turns the day into a clear summary, and a weekly sprint digest is one click away.
               </p>
 
               <ul className="mt-4 flex flex-col gap-2">
                 {[
-                  "AI-structured standup summaries",
-                  "Blocker detection and flagging",
-                  "Auto weekly sprint digest email",
+                  "AI daily summaries that group work and surface blockers",
+                  "One click weekly sprint digest, emailed to the whole team",
+                  "Filter by teammate or date, scoped to each workspace",
                 ].map((point) => (
                   <li key={point} className="flex items-center gap-2">
                     <PiCheck className="text-success-solid" />
@@ -153,24 +153,24 @@ export default function FeaturesSection() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <SmallCard
             tagLabel="Onboarding Agent"
-            tagClass="bg-secondary-bg text-secondary-text border-secondary-border/50"
-            icon={<PiGithubLogo className="text-secondary-solid" />}
-            title="Paste a repo. Get full docs."
-            desc="AI reads your codebase and generates an onboarding doc in minutes."
+            tagClass="bg-primary-bg text-primary-text border-primary-border/50"
+            icon={<PiGithubLogo className="text-primary-solid" />}
+            title="Connect a repo, get a guide"
+            desc="DevFlow indexes your codebase and writes an onboarding guide: overview, architecture, key modules, and where to start."
           />
           <SmallCard
-            tagLabel="AI Q&A"
+            tagLabel="Grounded Q&A"
             tagClass="bg-primary-bg text-primary-text border-primary-border/50"
             icon={<PiChatCircleText className="text-primary-solid" />}
-            title="Ask anything about the code"
-            desc="New devs get answers grounded in your actual codebase — not Stack Overflow."
+            title="Ask the codebase anything"
+            desc="Answers are grounded in your real code and cite the exact files and line ranges they came from."
           />
           <SmallCard
-            tagLabel="Collaboration"
-            tagClass="bg-secondary-bg text-secondary-text border-secondary-border/50"
-            icon={<PiUsers className="text-secondary-solid" />}
-            title="Built for teams and clients"
-            desc="Invite your team, share digests with clients. Role access included."
+            tagLabel="Semantic search"
+            tagClass="bg-info-bg text-info-text border-info-border/50"
+            icon={<PiMagnifyingGlass className="text-info-solid" />}
+            title="Find code by describing it"
+            desc="Vector search over your repo surfaces the most relevant files for a plain English query."
           />
         </div>
       </div>

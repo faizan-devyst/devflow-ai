@@ -1,36 +1,197 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DevFlow AI
 
-## Getting Started
+The AI workspace for engineering teams. DevFlow AI gives your team written async standups with AI summaries and one click weekly digests, plus a codebase onboarding agent that indexes any GitHub repository for semantic search, grounded Q&A, and an automatically generated onboarding guide.
 
-First, run the development server:
+Open source, bring your own API keys, and your data stays in your own database.
+
+> Repository: https://github.com/faizan-devyst/devflow-ai
+> If DevFlow AI saves your team time, please star and fork the repo so other teams can find it.
+
+---
+
+## What it does
+
+**StandupAI**
+- Written async standups scoped to each team (yesterday, today, blockers).
+- AI daily summaries that group related work and surface blockers, powered by Claude.
+- One click weekly sprint digest that is emailed to the whole team.
+- Filter the feed by teammate or date.
+
+**Codebase Onboarding Agent**
+- Connect any GitHub repository (a personal access token is only needed for private repos).
+- The code is fetched, chunked, and embedded into a private vector index (pgvector).
+- Semantic search over the repo from a plain English query.
+- Grounded Q&A chat whose answers cite the exact files and line ranges.
+- An automatically generated onboarding guide (overview, architecture, key modules, where to start).
+
+**Foundation**
+- Secure auth with Better Auth (email and password plus Google sign in).
+- Team workspaces. Standups and repositories are scoped per team.
+- Bring your own keys. The app calls Anthropic, OpenAI, and Resend with the keys you provide.
+
+---
+
+## Tech stack
+
+- **Framework:** Next.js 16 (App Router) with TypeScript
+- **UI:** Tailwind CSS, shadcn/ui, Designrift color system, react-icons (Phosphor)
+- **State:** Redux Toolkit
+- **Database:** PostgreSQL with pgvector, via Prisma 7 (tested on Neon)
+- **Auth:** Better Auth
+- **AI:** Claude (`claude-opus-4-8`) for summaries, digests, answers, and docs; OpenAI `text-embedding-3-small` for code embeddings
+- **Email:** Resend
+
+---
+
+## Prerequisites
+
+- Node.js 20 or newer
+- pnpm (`npm install -g pnpm`)
+- A PostgreSQL database with the pgvector extension available (Neon works out of the box)
+- API keys (see the table below)
+
+---
+
+## Quick start
+
+### 1. Fork and clone
+
+Fork the repository on GitHub first (this gives you your own copy to deploy and contribute from), then clone your fork:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/<your-username>/devflow-ai.git
+cd devflow-ai
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure environment variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create a `.env` file in the project root and fill in the values below.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Database (PostgreSQL with pgvector, e.g. Neon)
+DEVFLOW_AI_DATABASE_URL="postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST/DB?sslmode=require"
 
-## Learn More
+# App URL (used by Better Auth and metadata)
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 
-To learn more about Next.js, take a look at the following resources:
+# Better Auth
+BETTER_AUTH_SECRET="a long random string"
+BETTER_AUTH_URL="http://localhost:3000"
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Google OAuth (optional, enables Google sign in)
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# AI providers
+ANTHROPIC_API_KEY="sk-ant-..."
+OPENAI_API_KEY="sk-..."
+
+# Email (transactional email for verification, reset, and digests)
+RESEND_API_KEY="re_..."
+```
+
+### 3. Set up the database
+
+The schema includes the pgvector extension and the vector column for code embeddings. Apply migrations and generate the Prisma client:
+
+```bash
+pnpm prisma migrate deploy
+pnpm prisma generate
+```
+
+For local schema changes during development, use:
+
+```bash
+pnpm prisma migrate dev --name your_change
+```
+
+### 4. Run the app
+
+```bash
+pnpm dev
+```
+
+Open http://localhost:3000.
+
+---
+
+## Where to get each API key
+
+| Variable | Used for | Where to get it |
+| --- | --- | --- |
+| `DEVFLOW_AI_DATABASE_URL` | Primary database connection | Create a Postgres database at https://neon.tech (or any Postgres with pgvector) and copy the pooled connection string |
+| `DIRECT_URL` | Direct connection for migrations | The direct (non pooled) connection string from your database provider |
+| `BETTER_AUTH_SECRET` | Signing sessions | Generate one with `openssl rand -base64 32` |
+| `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` | App base URL | `http://localhost:3000` locally, your deployed URL in production |
+| `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` | Google sign in (optional) | Create OAuth credentials in the Google Cloud Console, with the callback `<APP_URL>/api/auth/callback/google` |
+| `ANTHROPIC_API_KEY` | Summaries, digests, codebase answers, onboarding docs | https://console.anthropic.com |
+| `OPENAI_API_KEY` | Code embeddings for indexing and search | https://platform.openai.com |
+| `RESEND_API_KEY` | Verification, password reset, and digest emails | https://resend.com |
+| GitHub personal access token | Only entered in the app to index a private repo | https://github.com/settings/tokens (a fine grained token with read access to the repo). It is used once to fetch the code and is never stored |
+
+The AI features fail with a clear message if `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` is missing, so you can run the app and add keys when you are ready.
+
+---
+
+## Using the app
+
+1. **Create an account** at `/sign-up` and verify your email (or sign in with Google).
+2. **Create a team** from the workspace switcher in the dashboard sidebar. You become the owner.
+3. **Standups:** open Standups, post your update, and use AI Insights to generate a daily summary or to generate and email a weekly digest.
+4. **Onboarding:** open Onboarding, connect a GitHub repository, and watch the indexing progress. Once it is ready you can:
+   - **Search code** with a plain English query.
+   - **Ask** questions in a chat that cites the files and lines it used.
+   - **Generate an onboarding doc** for the repository.
+
+---
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Fork this repository to your own GitHub account.
+2. In Vercel, click New Project and import your fork.
+3. Add all environment variables from the table above. Set `NEXT_PUBLIC_APP_URL` and `BETTER_AUTH_URL` to your production URL.
+4. Make sure your database is reachable from Vercel and that migrations have been applied (`pnpm prisma migrate deploy`).
+5. Deploy. The build runs `prisma generate && next build`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Repository indexing runs as background work after the connect request returns, which is supported on Vercel. On other platforms make sure background tasks are allowed to finish.
+
+---
+
+## Self hosting
+
+DevFlow AI is a standard Next.js app. Build and run it anywhere that runs Node.js:
+
+```bash
+pnpm build
+pnpm start
+```
+
+Provide the same environment variables and a reachable Postgres database with pgvector enabled.
+
+---
+
+## Project structure
+
+```text
+src/
+  app/                 Routes and API route handlers
+    api/               teams, standups, repositories (search, chat, onboarding), github
+  components/          Feature components, shared primitives, and ui (shadcn)
+  lib/                 prisma, auth, ai, embeddings, github, ingest, search, rate-limit
+  store/               Redux Toolkit store and slices
+prisma/                schema.prisma and migrations
+```
+
+---
+
+## Contributing
+
+Contributions are welcome: bug fixes, features, docs, and design improvements. Fork the repo, create a branch, and open a pull request. If the project is useful to you, a star helps others discover it.
+
+---
+
+## License
+
+MIT. You are free to use, copy, modify, and distribute this software under the terms of the MIT License.

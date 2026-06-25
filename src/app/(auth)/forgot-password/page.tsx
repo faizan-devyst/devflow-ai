@@ -4,6 +4,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 
+// SSR — auth-gated: redirects to /dashboard when a session exists (reads request headers).
+export const dynamic = "force-dynamic";
+
 export const metadata = constructMetadata({
   title: "Forgot Password",
   description: "Reset your DevFlow AI account password.",
