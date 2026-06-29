@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { PiSparkle, PiArrowRight, PiShieldCheck, PiKey, PiDatabase } from "react-icons/pi";
+import {
+  PiSparkle,
+  PiArrowRight,
+  PiShieldCheck,
+  PiKey,
+  PiDatabase,
+} from "react-icons/pi";
 import { TextRotate } from "../animations/TextRotate";
 import { Button } from "../ui/button";
 
@@ -14,9 +20,9 @@ const ROTATING_WORDS = [
 ];
 
 const TRUST_POINTS = [
-  { icon: PiShieldCheck, label: "Secure team workspaces" },
+  { icon: PiShieldCheck, label: "Secure workspaces" },
   { icon: PiKey, label: "Bring your own API keys" },
-  { icon: PiDatabase, label: "Your data, your database" },
+  { icon: PiDatabase, label: "Your data stays yours" },
 ];
 
 export default function HeroSection() {
@@ -24,7 +30,7 @@ export default function HeroSection() {
     <section
       id="hero"
       aria-label="Hero"
-      className="relative min-h-[calc(100vh-64px)] flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen -mt-16 md:-mt-10 flex items-center justify-center overflow-hidden"
     >
       <div className="relative z-10 max-w-4xl mx-auto px-6 text-center flex flex-col items-center">
         <motion.div
@@ -44,7 +50,7 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.15 }}
         >
-          Less status reporting.{" "}
+          Less reporting.
           <br className="hidden sm:block" />
           More shipping, for{" "}
           <span className="inline-flex overflow-hidden h-[1.1em] align-bottom">
@@ -53,7 +59,11 @@ export default function HeroSection() {
               rotationInterval={2400}
               staggerDuration={0.025}
               staggerFrom="first"
-              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              transition={{
+                type: "spring",
+                damping: 28,
+                stiffness: 320,
+              }}
               mainClassName="text-primary-solid text-5xl sm:text-6xl font-semibold"
             />
           </span>
@@ -65,9 +75,8 @@ export default function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
         >
-          DevFlow AI gives your team written async standups with AI summaries and one click
-          weekly digests, plus an onboarding agent that indexes any GitHub repo so new
-          engineers learn the codebase by asking questions instead of reading stale wikis.
+          Automate standups, generate team summaries, and onboard engineers
+          faster with AI-powered codebase search.
         </motion.p>
 
         <motion.div
@@ -85,7 +94,7 @@ export default function HeroSection() {
 
           <Button variant="outline" size="lg" asChild>
             <Link href="#how-it-works" className="flex items-center gap-2">
-              See how it works
+              How it works
             </Link>
           </Button>
         </motion.div>
@@ -97,7 +106,10 @@ export default function HeroSection() {
           transition={{ duration: 0.5, delay: 0.45 }}
         >
           {TRUST_POINTS.map(({ icon: Icon, label }) => (
-            <span key={label} className="inline-flex items-center gap-2 text-canvas-text text-sm">
+            <span
+              key={label}
+              className="inline-flex items-center gap-2 text-canvas-text text-sm"
+            >
               <Icon className="text-primary-text" />
               {label}
             </span>
